@@ -1,0 +1,3 @@
+*.pyc
+__pycahce__
+examples/test_prism
