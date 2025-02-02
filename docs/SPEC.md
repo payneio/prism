@@ -1,14 +1,17 @@
-# Prism spec
+# Prism specification
 
 <!-- prism:generate:breadcrumbs -->
-[My Prism Repository](README.md) > Prism spec
+[Prism Documentation](README.md) > Prism specification
 <!-- /prism:generate:breadcrumbs -->
 
 ## Overview
 
+This is a general project specification currently. It will be broken apart as
+the project takes shape.
+
 This page considers the design of a piece of software to make content management
 more powerful for individuals and organizations. The main idea is to have a
-text-based prism that makes it quick for organizing thought and information
+text-based wiki that makes it quick for organizing thought and information
 towards a specific purpose. It is not intended to be a general knowledge store
 (though it might be able to be used as such). Instead, it imagines a future
 where a topic is explored in depth in a structured way.
@@ -216,7 +219,7 @@ prism/
 
 <!-- prism:metadata
 ---
-title: Prism spec
+title: Prism specification
 path: SPEC.md
 generator_types:
   - breadcrumbs

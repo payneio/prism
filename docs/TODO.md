@@ -1,7 +1,7 @@
 # Changelog
 
 <!-- prism:generate:breadcrumbs -->
-[My Prism Repository](README.md) > Changelog
+[Prism Documentation](README.md) > Changelog
 <!-- /prism:generate:breadcrumbs -->
 
 ## Upcoming
