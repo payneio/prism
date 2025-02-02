@@ -8,6 +8,7 @@ Welcome to your new Prism repository.
 - [Organizations](organizations/README.md)
 - [People](people/README.md)
 - [Prism spec](SPEC.md)
+- [TODO](TODO.md)
 <!-- /prism:generate:pages -->
 
 <!-- prism:metadata

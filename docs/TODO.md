@@ -16,3 +16,11 @@
 ## Cli
 
 - [ ] When using prism, it should work from your current dir, not the root.
+
+<!-- prism:metadata
+---
+title: TODO
+path: TODO.md
+generator_types:
+---
+-->
