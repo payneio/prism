@@ -109,18 +109,13 @@ class Page:
             # Check for title
             _ = self.title
 
-            # Check for parent link (except root README)
+            # Check for parent link.
             if not self._is_root_readme() and not self._has_parent_link():
                 raise PageValidationError(f"No parent link found in {self.path}")
 
-            # Validate metadata section
-            if self.metadata:  # If metadata exists, check structure
-                parts = self.content.split(self.METADATA_MARKER)
-                if len(parts) != 3:
-                    raise PageValidationError(
-                        f"Wrong number of metadata markers in {self.path}"
-                    )
-                # Don't check if the last part is empty - it's fine if it just contains newlines
+            # Validate metadata section.
+            if not self.metadata:  # If metadata exists, check structure
+                raise PageValidationError(f"No metadata in {self.path}")
 
         except Exception as e:
             raise PageValidationError(f"Validation failed for {self.path}: {e}")
@@ -137,20 +132,11 @@ class Page:
         if current_dir == self.prism.root:
             return True
 
-        # For docs/README.md, we accept [Parent](.)
-        if current_dir.parent == self.prism.root:
-            if "(..)" in self.content or "(.)" in self.content:
-                return True
-
-        # For deeper files, we accept either:
-        # - Relative: [Parent](..)
-        # - Absolute: [Parent](docs)
-        if "(..)" in self.content:
+        # - Relative: [Parent](../README.md)
+        if "(../README.md)" in self.content:
             return True
 
-        # Check for absolute path (legacy/alternative format)
-        parent_dir = str(current_dir.relative_to(self.prism.root)).replace("\\", "/")
-        return f"({parent_dir})" in self.content
+        return False
 
     def _run_generators(self):
         """Find and run all generators in the page"""

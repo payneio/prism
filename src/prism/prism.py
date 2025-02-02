@@ -82,8 +82,10 @@ class Prism:
             raise FileNotFoundError(f"Page not found: {path}")
         return Page(self, full_path)
 
-    def get_folder(self, path: PathLike) -> Folder:
+    def get_folder(self, path: PathLike | None = None) -> Folder:
         """Get a folder by path (relative to prism root)"""
+        if path is None:
+            path = "."
         full_path = (self.root / Path(path)).resolve()
         if not full_path.exists():
             raise FileNotFoundError(f"Folder not found: {path}")
