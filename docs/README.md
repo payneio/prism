@@ -9,13 +9,27 @@
 
 ## Prism
 
-Prism is a next-generation content management protocol designed for an
-AI-enabled future. Prism lets you create, organize, and transform markdown-based
-content with powerful projection and summarization capabilities.
+Prism reimagines content management for the AI era by transforming static information into dynamic, adaptable knowledge. While tools like Notion and Obsidian offer rich features for organizing notes and documents, they largely remain passive repositories. They require manual effort to restructure or repurpose content for different contexts.
 
-Traditional content management systems weren't built for the AI age. Prism represents a new approach, where content isn't just stored and retrieved, but can be dynamically transformed, projected, and rewritten based on specific needs.
+**The Heart of Prism** lies in its ability to make content inherently flexible and interactive:
 
-Think of Prism as a protocol more than a tool - it defines how content should be structured and linked to enable powerful transformations. While this implementation provides a CLI and Python library, the protocol is designed to be implemented across many tools and platforms.
+- **Dynamic Content Transformation**: Prism treats your content as a living graph, not just a collection of files. You can project, transform, and reshape information on-the-fly, tailoring it to specific needs without duplicating or manually reorganizing it.
+
+- **Seamless AI Integration**: Designed with AI collaboration in mind, Prism allows AI assistants to navigate, summarize, and even help build your content structures. This means you can leverage AI to manage context, generate insights, and maintain your knowledge base effortlessly.
+
+- **Markdown Simplicity with Graph Power**: By building on Markdown, Prism keeps things simple and accessible. Yet, beneath that simplicity is a powerful graph-based system that enables sophisticated organization and retrieval of information.
+
+- **Open, Flexible, and Collaborative**: Prism is protocol-first and git-friendly, promoting openness and interoperability. You're not locked into specific tools or platforms, allowing for broader collaboration and longevity of your content.
+
+**Why This Matters**:
+
+Traditional systems and even newer applications focus on storing information, but they don't inherently support the dynamic needs of modern knowledge work, especially in collaboration with AI. Prism addresses this gap by:
+
+- Eliminating the need for manual maintenance of complex content structures.
+- Enabling real-time content adaptation and projection for different contexts or audiences.
+- Harnessing AI to enhance and manage your content, turning a passive repository into an active knowledge partner.
+
+In essence, Prism offers a paradigm shift from static documents to dynamic knowledge ecosystems, bridging the gap between human thought and AI capabilities. It's a powerful innovation because it doesn't just manage information—it transforms how we interact with knowledge itself.
 
 ## Benefits
 
