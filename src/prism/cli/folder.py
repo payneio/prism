@@ -1,6 +1,8 @@
 # src/prism/cli/folder.py
 from pathlib import Path
+
 import click
+
 from ..prism import Prism
 from ..utils.paths import find_prism_root
 
@@ -16,7 +18,7 @@ def folder():
 def add(path: str):
     """Add a new folder at the specified path"""
     try:
-        prism = Prism("find_prism_root"())
+        prism = Prism(find_prism_root())
         folder_path = Path(path)
 
         # Get or create parent folders
