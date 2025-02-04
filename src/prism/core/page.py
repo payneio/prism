@@ -1,18 +1,21 @@
 # src/prism/core/page.py
-from pathlib import Path
-from typing import Dict, Any, Optional, TYPE_CHECKING
 import re
-from markdown.core import Markdown
+from os import PathLike
+from pathlib import Path
+from textwrap import dedent
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
 import yaml
+from markdown.core import Markdown
+
 from ..exceptions import PrismError
-from ..generators.toc import TocGenerator
-from ..generators.pages import PagesGenerator
-from ..generators.subdirs import SubdirsGenerator
-from ..generators.siblings import SiblingsGenerator
 from ..generators.breadcrumbs import BreadcrumbsGenerator
+from ..generators.pages import PagesGenerator
+from ..generators.siblings import SiblingsGenerator
+from ..generators.subdirs import SubdirsGenerator
+from ..generators.toc import TocGenerator
 
 if TYPE_CHECKING:
-    from ..prism import Prism
     from ..generators.base import Generator
 
 
@@ -40,12 +43,75 @@ class Page:
         re.DOTALL,
     )
 
-    def __init__(self, prism: "Prism", path: Path):
-        self.prism = prism
+    def __init__(self, path: Path):
         self.path = path
         self._content: Optional[str] = None
         self._metadata: Optional[Dict[str, Any]] = None
         self._title: Optional[str] = None
+
+    @staticmethod
+    def create(
+        path: PathLike | None = None,
+        title: str | None = None,
+        content: str | None = None,
+    ) -> "Page":
+        """Create a new page in this folder.
+
+        - Either path or title must be provided.
+        - The path is relative to the current working directory.
+        - If path is not provided, title will be used to generate a filename in
+          the current directory.
+        - If content is not provided, a default template will be used.
+        - If title is not provided, the filename will be converted to a title
+          and be used in the templaet for the new page.
+        """
+        if path is None and title is None:
+            raise PageError("Filename or title must be provided")
+
+        file_dir: Path = Path(path).parent if path else Path.cwd()
+        file_name = Path(path).name if path else None
+
+        # Convert title to filename if not provided.
+        if file_name is None:
+            path = title.lower().replace(" ", "_") + ".md"
+
+        # Ensure .md extension.
+        if not file_name.endswith(".md"):
+            file_name += ".md"
+
+        # Check if page already exists.
+        page_path = file_dir / file_name
+        if page_path.exists():
+            raise PageError(f"Page already exists: {page_path}")
+
+        # Create parent folders if needed
+        file_dir.mkdir(parents=True, exist_ok=True)
+
+        # Generate a title if necessary.
+        if title is None:
+            title = path[:-3].replace("_", " ").title()
+
+        content = (
+            content
+            or dedent(f"""
+            # {title}
+
+            <!-- prism:generate:breadcrumbs -->
+            <!-- /prism:generate:breadcrumbs -->
+
+            ## Pages
+
+            <!-- prism:generate:pages -->
+            <!-- /prism:generate:pages -->
+
+            """).lstrip()
+        )
+
+        page_path.write_text(content)
+        page = Page(path=page_path)
+        page.refresh()
+
+        return page
 
     @property
     def content(self) -> str:

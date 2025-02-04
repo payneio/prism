@@ -4,7 +4,6 @@ from pathlib import Path
 import click
 
 from ..prism import Prism
-from ..utils.paths import find_prism_root
 
 
 @click.group()
@@ -18,7 +17,7 @@ def folder():
 def add(path: str):
     """Add a new folder at the specified path"""
     try:
-        prism = Prism(find_prism_root())
+        prism = Prism()
         folder_path = Path(path)
 
         # Get or create parent folders
@@ -41,7 +40,7 @@ def add(path: str):
 def refresh(path: str, recursive: bool):
     """Refresh all pages in a folder"""
     try:
-        prism = Prism(find_prism_root())
+        prism = Prism()
         prism.refresh_folder(path, recursive=recursive)
         if recursive:
             click.echo("Refreshed folder and subfolders.")

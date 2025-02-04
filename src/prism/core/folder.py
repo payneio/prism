@@ -1,9 +1,11 @@
 # src/prism/core/folder.py
+from os import PathLike
 from pathlib import Path
-from typing import Iterator, Optional, TYPE_CHECKING
-from .page import Page
-from ..exceptions import PrismError, PageError
 from textwrap import dedent
+from typing import TYPE_CHECKING, Iterator, Optional
+
+from ..exceptions import PageError, PrismError
+from .page import Page
 
 if TYPE_CHECKING:
     from ..prism import Prism
@@ -66,60 +68,6 @@ class Folder:
             p for p in self.path.iterdir() if p.is_dir() and not p.name.startswith(".")
         )
 
-    def create_page(
-        self,
-        filename: str | None = None,
-        title: str | None = None,
-        content: str | None = None,
-    ) -> "Page":
-        """Create a new page in this folder
-
-        Args:
-            filename: Optional filename
-            title: Display title for the page (defaults to filename)
-            content: Optional initial content for the page
-        """
-        if filename is None and title is None:
-            raise PageError("Filename or title must be provided")
-
-        # Convert title to filename if not provided
-        if filename is None:
-            filename = title.lower().replace(" ", "_") + ".md"
-
-        # Ensure .md extension
-        if not filename.endswith(".md"):
-            filename += ".md"
-
-        page_path = self.path / filename
-        if page_path.exists():
-            raise FolderError(f"Page already exists: {filename}")
-
-        # Generate a title if necessary.
-        if title is None:
-            title = filename[:-3].replace("_", " ").title()
-
-        content = (
-            content
-            or dedent(f"""
-            # {title}
-
-            <!-- prism:generate:breadcrumbs -->
-            <!-- /prism:generate:breadcrumbs -->
-
-            ## Pages
-
-            <!-- prism:generate:pages -->
-            <!-- /prism:generate:pages -->
-
-            """).lstrip()
-        )
-
-        page_path.write_text(content)
-        page = self.prism.get_page(page_path.relative_to(self.prism.root))
-        page.refresh()
-
-        return page
-
     def create_subfolder(
         self, directory: str | None = None, title: str | None = None
     ) -> "Folder":
@@ -143,7 +91,7 @@ class Folder:
             title = directory.replace("_", " ").title()
 
         # Create README page.
-        readme = folder.create_page(filename="README.md", title=title)
+        readme = folder.create_page(path="README.md", title=title)
         readme.refresh()
 
         return folder

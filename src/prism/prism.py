@@ -1,32 +1,17 @@
-from pathlib import Path
-from .core.page import Page
-from .core.folder import Folder
-from .exceptions import PrismNotFoundError, PrismError
 import os
-from textwrap import dedent
 from os import PathLike
+from pathlib import Path
+from textwrap import dedent
+
+from . import BACKLINKS_NAME, METADATA_ROOT_DIR_NAME, SEARCH_INDEX_DIR_NAME, TAGS_NAME
+from .core.folder import Folder
+from .core.page import Page
+from .exceptions import PrismError, PrismNotFoundError
+from .utils.paths import find_prism_root
 
 
 class Prism:
     """Main class representing a prism repository"""
-
-    def __init__(self, root_path: Path):
-        """Initialize prism at the given root path"""
-        self.root = root_path.resolve()
-        if not self._is_prism_root(self.root):
-            raise PrismNotFoundError(f"No prism found at {root_path}")
-
-        self.metadata_root = self.root / ".prism"
-
-        # Initialize indices
-        self.backlinks_file = self.metadata_root / "backlinks.txt"
-        self.backlinks_file.touch()
-
-        self.tags_file = self.metadata_root / "tags.txt"
-        self.tags_file.touch()
-
-        self.search_index_dir = self.metadata_root / ".search"
-        self.search_index_dir.mkdir(exist_ok=True)
 
     @staticmethod
     def initialize(path: str) -> "Prism":
@@ -39,19 +24,18 @@ class Prism:
         target.mkdir(exist_ok=True)
 
         # And metadata directory.
-        metadata_directory = target / ".prism"
+        metadata_directory = target / METADATA_ROOT_DIR_NAME
         if metadata_directory.exists():
             raise PrismError(f"{target} directory already exists")
-        os.makedirs(metadata_directory / ".prism", exist_ok=True)
+        os.makedirs(metadata_directory / METADATA_ROOT_DIR_NAME, exist_ok=True)
 
         # Create prism object.
-        prism = Prism(target)
-        cwf = prism.get_folder(".")
+        prism = Prism(path)
 
         # Create the root README.
-        cwf.create_page(
-            "README.md",
-            title="My Prism Repository",
+        prism.create_page(
+            target / "README.md",
+            title="Home",
             content=dedent("""
             # My Prism Repository
 
@@ -64,32 +48,40 @@ class Prism:
             """).lstrip(),
         )
 
-        # Create standard directories.
-        cwf.create_subfolder("people")
-        cwf.create_subfolder("organizations")
-        cwf.refresh(recursive=True)
-
         return prism
+
+    def __init__(self, path: PathLike | None = None):
+        """Initialize prism at the given root path"""
+        self.root = find_prism_root(path)
+        if self.root is None:
+            raise PrismNotFoundError("No prism root found.")
+
+        self.metadata_root = self.root / METADATA_ROOT_DIR_NAME
+
+        # Initialize indices
+        self.backlinks_file = self.metadata_root / BACKLINKS_NAME
+        self.backlinks_file.touch()
+
+        self.tags_file = self.metadata_root / TAGS_NAME
+        self.tags_file.touch()
+
+        self.search_index_dir = self.metadata_root / SEARCH_INDEX_DIR_NAME
+        self.search_index_dir.mkdir(exist_ok=True)
 
     def _is_prism_root(self, path: Path) -> bool:
         """Check if path is a valid prism root (has .prism file)"""
-        return (path / ".prism").exists()
+        return (path / METADATA_ROOT_DIR_NAME).exists()
+
+    def create_page(self, path: PathLike, title: str, content: str):
+        """Create a new page with the given title and content"""
+        Page.create(path, title, content)
 
     def get_page(self, path: PathLike) -> Page:
-        """Get a page by path (relative to prism root)"""
-        full_path = (self.root / Path(path)).resolve()
-        if not full_path.exists():
-            raise FileNotFoundError(f"Page not found: {path}")
-        return Page(self, full_path)
+        return Page(path)
 
     def get_folder(self, path: PathLike | None = None) -> Folder:
         """Get a folder by path (relative to prism root)"""
-        if path is None:
-            path = "."
-        full_path = (self.root / Path(path)).resolve()
-        if not full_path.exists():
-            raise FileNotFoundError(f"Folder not found: {path}")
-        return Folder(self, full_path)
+        return Folder(self, path)
 
     def refresh_page(self, path: PathLike):
         """Refresh a single page (validate, run generators, update indices)"""

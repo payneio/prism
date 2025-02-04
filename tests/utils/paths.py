@@ -1,27 +1,31 @@
 # tests/utils/test_paths.py
 from pathlib import Path
+
 import pytest
-from prism.utils.paths import find_prism_root, PrismPathError
+
+from prism import METADATA_ROOT_DIR_NAME
+from prism.utils.paths import PrismPathError, find_prism_root
+
 
 def test_find_prism_root(tmp_path: Path):
     """Test finding Prism root directory"""
     # Create a mock Prism repository
     repo = tmp_path / "test_repo"
-    repo.mkdir()
-    (repo / ".prism").touch()
-    
+    repo.mkdir(repo / METADATA_ROOT_DIR_NAME)
+
     # Test from root
     assert find_prism_root(repo) == repo
-    
+
     # Test from subdirectory
     subdir = repo / "docs"
     subdir.mkdir()
     assert find_prism_root(subdir) == repo
-    
+
     # Test from deeper subdirectory
     subsubdir = subdir / "api"
     subsubdir.mkdir()
     assert find_prism_root(subsubdir) == repo
+
 
 def test_find_prism_root_not_found(tmp_path: Path):
     """Test error when no Prism root is found"""
