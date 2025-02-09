@@ -1,114 +1,104 @@
-# tests/core/test_folder.py
-from pathlib import Path
-import pytest
 from textwrap import dedent
-from prism.core.folder import Folder, FolderError
-from prism.core.page import Page
+
+import pytest
+
+from prism import Folder, FolderError, Page, Prism, PrismPath
 
 
-def test_folder_initialization(prism):
+async def test_folder_initialization(tmp_prism: Prism):
     """Test basic folder initialization"""
-    folder = prism.get_folder("docs")
+    folder = tmp_prism.get_folder(PrismPath(PrismPath("docs")))
     assert isinstance(folder, Folder)
     assert folder.path.name == "docs"
 
 
-def test_folder_no_readme(prism):
+async def test_folder_no_readme(tmp_prism):
     """Test folder without README fails validation"""
-    empty_dir = prism.root / "empty"
+    empty_dir = tmp_prism.drive.root / "empty"
     empty_dir.mkdir()
 
     with pytest.raises(FolderError, match="missing README.md"):
-        Folder(prism, empty_dir)._validate_structure()
+        await Folder(tmp_prism, PrismPath("empty"))._validate_structure()
 
 
-def test_list_pages(prism):
+async def test_list_pages(tmp_prism):
     """Test listing pages in a folder"""
-    folder = prism.get_folder("docs")
-    pages = list(folder.list_pages())
+    folder = tmp_prism.get_folder(PrismPath("docs"))
+    pages = [str(page_path) async for page_path in folder.list_pages()]
     assert len(pages) == 2
-    assert any(p.name == "README.md" for p in pages)
-    assert any(p.name == "guide.md" for p in pages)
+    assert any(p == "docs/README.md" for p in pages)
+    assert any(p == "docs/guide.md" for p in pages)
 
 
-def test_create_page(prism):
-    """Test creating a new page"""
-    folder = prism.get_folder("docs")
-    page = folder.create_page(title="Test Page")
-
-    assert isinstance(page, Page)
-    assert page.title == "Test Page"
-    assert page.path.name == "test_page.md"
-
-    # Check content
-    content = page.path.read_text()
-    assert "# Test Page" in content
-    assert "(../README.md)" in content
-    assert "<!-- prism:generate:breadcrumbs -->" in content
-
-
-def test_create_existing_page(prism):
-    """Test creating a page that already exists"""
-    folder = prism.get_folder("docs")
-    folder.create_page("Test Page")
-
-    with pytest.raises(FolderError, match="Page already exists"):
-        folder.create_page("Test Page")
-
-
-def test_create_subfolder(prism):
+async def test_create_subfolder(tmp_prism):
     """Test creating a new subfolder"""
-    folder = prism.get_folder("docs")
-    subfolder = folder.create_subfolder("subdir")
+    folder = tmp_prism.get_folder(PrismPath("docs"))
+    subfolder = await folder.create_subfolder("subdir")
 
     assert isinstance(subfolder, Folder)
     assert subfolder.path.name == "subdir"
     assert subfolder.readme is not None
 
     # Check README content
-    content = subfolder.readme.read_text()
+    content = await (await subfolder.readme).content
     assert "# Subdir" in content
     assert "(../README.md)" in content  # Updated to check for relative parent link
     assert "<!-- prism:generate:pages -->" in content
 
 
-def test_create_existing_subfolder(prism):
+async def test_create_existing_subfolder(tmp_prism):
     """Test creating a subfolder that already exists"""
-    folder = prism.get_folder("docs")
-    folder.create_subfolder("subdir")
+    folder = tmp_prism.get_folder(PrismPath("docs"))
+    await folder.create_subfolder("subdir")
 
     with pytest.raises(FolderError, match="Folder already exists"):
-        folder.create_subfolder("subdir")
+        await folder.create_subfolder("subdir")
 
 
-def test_subfolder_parent_link(prism):
+async def test_subfolder_parent_link(tmp_prism):
     """Test that created subfolders have proper parent links"""
-    docs = prism.get_folder("docs")
-    subfolder = docs.create_subfolder("test_sub")
+    docs = tmp_prism.get_folder(PrismPath("docs"))
+    subfolder = await docs.create_subfolder("test_sub")
 
     # Check the README content
-    readme_content = subfolder.readme.read_text()
+    readme = await subfolder.readme
+    readme_content = await readme.content
 
     assert "(../README.md)" in readme_content  # Updated expectation
 
     # Verify it passes validation
-    page = Page(prism, subfolder.readme)
+    page = await Page(tmp_prism.drive, readme.path)._load()
     page._validate_structure()  # Should not raise PageValidationError
 
 
-def test_recursive_refresh(prism):
+async def test_recursive_refresh(tmp_prism):
     """Test recursive folder refresh"""
     # Create a nested structure
-    folder = prism.get_folder("docs")
-    subfolder = folder.create_subfolder("subdir")
-    page = subfolder.create_page("Test Page")
+    folder = tmp_prism.get_folder(PrismPath("docs"))
+    await folder.create_subfolder("subdir")
 
-    # Add generators to pages
-    readme = subfolder.readme
-    readme.write_text(
-        readme.read_text()
-        + "\n<!-- prism:generate:toc -->\n<!-- /prism:generate:toc -->"
+    page_path = PrismPath("docs/subdir/test_page.md")
+    await tmp_prism.drive.write(
+        page_path,
+        content=dedent("""
+        # Test Page
+        
+        <!-- prism:generate:toc -->
+        <!-- /prism:generate:toc -->
+        
+        ## A heading
+        
+        Some content.
+        
+        ## Another heading
+        
+        Some text.
+        """),
     )
 
     # Refresh recursively
-    folder.refresh(recursive=True)
+    await folder.refresh(recursive=True)
+
+    # Check that the page was refreshed
+    page = await tmp_prism.get_page(page_path)._load()
+    assert "[A heading](#a-heading)" in await page.content

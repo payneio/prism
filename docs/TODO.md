@@ -8,6 +8,9 @@
 
 These items are generally in order of what will be delivered next.
 
+- Fix page validation.
+- The find-root-instantiate-prism pattern can be a decorator.
+- Break up page functions into classes (cache, metadata, etc.)
 - **Move page**: Make page move work.
 - **Move folder**: Make page move work.
 - **Back indexes**: Maintain back indexes for navigation.
@@ -15,6 +18,7 @@ These items are generally in order of what will be delivered next.
 - **Re-root**: Make a given page the new root of a prism repo and restructure the entire thing.
 - **Client working directory**: When using prism, it should work from your current dir, not the root.
 - **Subprism prevention**: Prevent a prism from being created inside a prism. Maybe?
+- **TOC Improvements**: Allow specifying depth in TOC generator.
 
 ## Done
 

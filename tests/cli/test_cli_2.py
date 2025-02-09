@@ -1,13 +1,17 @@
-import pytest
-from click.testing import CliRunner
-from prism.cli import cli
 import os
 from pathlib import Path
+
+import pytest
+from click.testing import CliRunner
+
+from prism.cli.prism import cli
+
 
 @pytest.fixture
 def runner():
     """Provides a Click CLI runner."""
     return CliRunner()
+
 
 @pytest.fixture
 def init_test_prism(tmp_path):
@@ -30,6 +34,7 @@ def init_test_prism(tmp_path):
         yield Path(fs) / "test-prism", runner
         # (When the 'with' block exits, the temporary directory is cleaned up.)
 
+
 def test_page_add_command(runner, init_test_prism):
     """Test adding a new page"""
 
@@ -41,13 +46,14 @@ def test_page_add_command(runner, init_test_prism):
 
     result = runner.invoke(cli, ["page", "add", "Test Page"])
     assert result.exit_code == 0, f"Command failed with: {result.output}"
-    
+
     # Check page exists and has correct content
     page_path = init_test_prism / "test_page.md"
     assert page_path.exists()
     content = page_path.read_text()
     assert "# Test Page" in content
     assert "[Parent]" in content
+
 
 def test_page_add_in_same_context(tmp_path):
     runner = CliRunner()

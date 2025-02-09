@@ -1,9 +1,8 @@
 from pathlib import Path
 
-import click
+import asyncclick as click
 
-from ..prism import Page, Prism
-from ..utils.paths import find_prism_root
+from prism import Disk, Page, Prism, PrismNotFoundError
 
 
 @click.group()
@@ -13,9 +12,9 @@ def page():
 
 
 @page.command()
-@click.argument("path", type=click.Path(), required=False, default=Path.cwd())
+@click.argument("path", type=click.Path(path_type=Path), required=False)
 @click.option("--title", "-t", help="Custom title for the page (defaults to path stem)")
-def add(path: str, title: str | None):
+async def add(path: str, title: str | None):
     """Add a new page at the specified path.
 
     - Either a filename in the path or title must be provided.
@@ -27,14 +26,16 @@ def add(path: str, title: str | None):
         and be used in the template for the new page.
     """
     try:
-        page_path = Path(path)
-        name = page_path.name
+        drive = Disk.find_prism_drive()
+    except PrismNotFoundError:
+        raise click.ClickException("No prism found in current directory")
 
-        if not name and not title:
-            raise click.ClickException("Either filename or title must be provided")
-
-        Page.create(path=page_path.name, title=title)
-        click.echo(f"Created page at {page_path} with title: {title}")
+    try:
+        prism = Prism(drive)
+        absolute_path = Path(path).resolve() if path else Path.cwd()
+        prism_path = await prism.drive.prism_path(absolute_path)
+        page = await Page.create(drive=prism.drive, path=prism_path, title=title)
+        click.echo(f"Created page at {page.path} with title: {title}")
 
     except Exception as e:
         raise click.ClickException(str(e))
@@ -42,11 +43,16 @@ def add(path: str, title: str | None):
 
 @page.command()
 @click.argument("path", type=click.Path())
-def refresh(path: str):
+async def refresh(path: str):
     """Refresh a page (run generators, update metadata)"""
     try:
-        prism = Prism()
-        prism.refresh_page(path)
+        drive = Disk.find_prism_drive()
+    except PrismNotFoundError:
+        raise click.ClickException("No prism found in current directory")
+
+    try:
+        prism = Prism(drive)
+        await prism.refresh_page(path)
         click.echo("Refreshed page.")
     except Exception as e:
         raise click.ClickException(str(e))

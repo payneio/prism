@@ -1,10 +1,9 @@
-# src/prism/cli/__init__.py
 from pathlib import Path
 
-import click
+import asyncclick as click
 
-from ..prism import Prism
-from ..utils.paths import find_prism_root
+from prism import Disk, Prism, PrismNotFoundError, PrismPath
+
 from .folder import folder
 from .page import page
 
@@ -21,12 +20,12 @@ cli.add_command(folder)
 
 @cli.command()
 @click.argument("path", type=click.Path(), default=".")
-def init(path: str):
+async def init(path: str):
     """Initialize a new Prism repository"""
 
     target = Path(path).resolve()
     try:
-        Prism.initialize(target)
+        await Prism.initialize(target)
     except Exception as e:
         raise click.ClickException(str(e))
 
@@ -34,16 +33,17 @@ def init(path: str):
 
 
 @cli.command()
-def refresh():
+async def refresh():
     """Refresh all folders and pages in the current repository"""
 
-    prism_root: Path = find_prism_root()
-    if not prism_root:
+    try:
+        drive = Disk.find_prism_drive()
+    except PrismNotFoundError:
         raise click.ClickException("No prism found in current directory")
 
     try:
-        prism = Prism(prism_root)
-        prism.refresh_folder(".", recursive=True)
+        prism = Prism(drive)
+        await prism.refresh_folder(PrismPath(), recursive=True)
         click.echo("Refreshed all pages.")
     except Exception as e:
         raise click.ClickException(str(e))
