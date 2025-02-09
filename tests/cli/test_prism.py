@@ -1,10 +1,11 @@
 # tests/test_cli.py
-from pathlib import Path
 import os
-from textwrap import dedent
+from pathlib import Path
+
 import pytest
 from click.testing import CliRunner
-from prism.cli import cli
+
+from prism.cli.prism import cli
 
 
 @pytest.fixture

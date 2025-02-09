@@ -1,40 +1,67 @@
-from .base import Generator
-from typing import TYPE_CHECKING
 from logging import getLogger
-from os.path import relpath
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+from ..types import PrismPath
+from .base import Generator
 
 logger = getLogger(__name__)
 
 
 if TYPE_CHECKING:
-    from ..core.page import Page
+    from ..page import Page
 
 
 class BreadcrumbsGenerator(Generator):
-    """Generates a list of breadcrumbs from the current page to the root"""
-    
-    def generate(self, page: "Page") -> str:
-        from ..core.page import Page
+    """
+    Generates a list of breadcrumbs from the current page to the root.
+    """
 
-        breadcrumbs: list[Page] = [ page ]
+    async def generate(self, page: "Page") -> str:
+        from ..page import Page
 
-        path = page.path.parent
+        breadcrumbs: list[tuple[str, PrismPath | None]] = []
 
-        # While that path is inside the prism root.
-        while path.absolute().as_posix().startswith(page.prism.root.absolute().as_posix()):
-            if (path / "README.md").exists() and page.path != path / "README.md":
-                breadcrumbs.append(Page(page.prism, path / "README.md"))
-            path = path.parent
-                
-        # Generate list with links
+        # Add current page without link
+        if not page.path.name == "README.md":
+            breadcrumbs.append((await page.title, None))
+
+        # Build up parent links by traversing up the tree
+        current_dir = page.path.parent
+        relative_path = PrismPath()
+
+        while True:
+            readme_path = current_dir / "README.md"
+
+            if await page.drive.exists(readme_path):
+                readme = Page(page.drive, readme_path)
+                # For immediate parent, use ./README.md
+                if page.path == readme_path:
+                    link_path = None
+                elif current_dir == page.path.parent:
+                    link_path = PrismPath("./README.md")
+                else:
+                    # For other ancestors, use the accumulated relative path
+                    link_path = relative_path / "README.md"
+                breadcrumbs.append((await readme.title, link_path))
+
+            if current_dir == PrismPath("."):
+                break
+
+            # Move up one level and add to relative path
+            current_dir = current_dir.parent
+            relative_path = (
+                PrismPath("..") / relative_path if relative_path else PrismPath("..")
+            )
+
+        # Reverse to get root -> current order
         breadcrumbs.reverse()
-        lines = []
-        for ancestor in breadcrumbs:
-            relative_path = Path(relpath(ancestor.path, page.path.parent)).as_posix()
-            if ancestor.path == page.path:
-                lines.append(ancestor.title)
+
+        # Generate breadcrumb links
+        parts = []
+        for title, path in breadcrumbs:
+            if path is None:
+                parts.append(title)
             else:
-                lines.append(f"[{ancestor.title}]({relative_path})")
-        
-        return " > ".join(lines)
+                parts.append(f"[{title}]({path})")
+
+        return " / ".join(parts)

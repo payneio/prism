@@ -3,3 +3,4 @@ __pycahce__
 examples/test_prism
 build
 dist
+test-prism

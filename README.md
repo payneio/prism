@@ -10,7 +10,7 @@ A next-generation content management protocol designed for an AI-enabled future.
 
 ```bash
 # Install Prism command line client.
-pip install prism
+pip install prism # Doesn't work, yet.
 
 # OR, if you're developing locally:
 uv pip install -e .
@@ -42,6 +42,8 @@ Prism uses Python 3.10+ and uv for dependency management.
 python -m venv .venv
 source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 pip install uv
+
+uv sync --all-extras
 uv pip install -e .
 ```
 

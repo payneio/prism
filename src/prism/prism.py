@@ -1,57 +1,61 @@
-from pathlib import Path
-from .core.page import Page
-from .core.folder import Folder
-from .exceptions import PrismNotFoundError, PrismError
 import os
-from textwrap import dedent
 from os import PathLike
+from pathlib import Path
+from textwrap import dedent
+
+from .exceptions import PrismError
+from .filesystem import FileSystem
+from .filesystem.disk import Disk
+from .folder import Folder
+from .page import Page
+from .types import (
+    BACKLINKS_NAME,
+    METADATA_ROOT_DIR_NAME,
+    SEARCH_INDEX_DIR_NAME,
+    TAGS_NAME,
+    PrismPath,
+)
 
 
 class Prism:
     """Main class representing a prism repository"""
 
-    def __init__(self, root_path: Path):
-        """Initialize prism at the given root path"""
-        self.root = root_path.resolve()
-        if not self._is_prism_root(self.root):
-            raise PrismNotFoundError(f"No prism found at {root_path}")
-
-        self.metadata_root = self.root / ".prism"
-
-        # Initialize indices
-        self.backlinks_file = self.metadata_root / "backlinks.txt"
-        self.backlinks_file.touch()
-
-        self.tags_file = self.metadata_root / "tags.txt"
-        self.tags_file.touch()
-
-        self.search_index_dir = self.metadata_root / ".search"
-        self.search_index_dir.mkdir(exist_ok=True)
+    drive: FileSystem
 
     @staticmethod
-    def initialize(path: str) -> "Prism":
-        """Initialize a new Prism repository"""
+    async def initialize(path: PathLike) -> "Prism":
+        """
+        Initialize a new Prism repository. This and prism init are the only
+        places in the library that use an external path. Everything else should
+        be relative to the prism root (a "prism path").
+        """
 
         # Create prism directory.
         target = Path(path).resolve()
         if target.exists() and not target.is_dir():
             raise PrismError(f"{path} exists and is not a directory")
+        if target.exists():
+            raise PrismError(f"{path} directory already exists")
+
+        # TODO: Put this in the FileSystem interface.
         target.mkdir(exist_ok=True)
 
-        # And metadata directory.
-        metadata_directory = target / ".prism"
-        if metadata_directory.exists():
-            raise PrismError(f"{target} directory already exists")
-        os.makedirs(metadata_directory / ".prism", exist_ok=True)
-
         # Create prism object.
-        prism = Prism(target)
-        cwf = prism.get_folder(".")
+        drive = Disk(target)
+
+        # We just need a root to be a valid prism repository.
+        await drive.create_directory(PrismPath(METADATA_ROOT_DIR_NAME))
+
+        prism = Prism(drive)
+
+        # Create all the necessary metadata files and directories.
+        await prism.repair()
 
         # Create the root README.
-        cwf.create_page(
-            "README.md",
-            title="My Prism Repository",
+        readme_path = await prism.drive.prism_path("README.md")
+        await prism.create_page(
+            path=readme_path,
+            title="Home",
             content=dedent("""
             # My Prism Repository
 
@@ -64,39 +68,58 @@ class Prism:
             """).lstrip(),
         )
 
-        # Create standard directories.
-        cwf.create_subfolder("people")
-        cwf.create_subfolder("organizations")
-        cwf.refresh(recursive=True)
-
         return prism
 
-    def _is_prism_root(self, path: Path) -> bool:
-        """Check if path is a valid prism root (has .prism file)"""
-        return (path / ".prism").exists()
+    def __init__(self, drive: FileSystem):
+        """Initialize prism at the given root path"""
+        self.drive = drive
 
-    def get_page(self, path: PathLike) -> Page:
-        """Get a page by path (relative to prism root)"""
-        full_path = (self.root / Path(path)).resolve()
-        if not full_path.exists():
-            raise FileNotFoundError(f"Page not found: {path}")
-        return Page(self, full_path)
+    async def repair(self):
+        metadata_dir = PrismPath(METADATA_ROOT_DIR_NAME)
+        if not await self.drive.exists(metadata_dir):
+            await self.drive.create_directory(metadata_dir)
 
-    def get_folder(self, path: PathLike | None = None) -> Folder:
+        # Initialize indices
+        backlinks_path = PrismPath(f"{METADATA_ROOT_DIR_NAME}/{BACKLINKS_NAME}")
+        if not await self.drive.exists(backlinks_path):
+            await self.drive.write(backlinks_path, "")
+
+        tags_path = PrismPath(f"{METADATA_ROOT_DIR_NAME}/{TAGS_NAME}")
+        if not await self.drive.exists(tags_path):
+            await self.drive.write(tags_path, "")
+
+        search_index_path = PrismPath(
+            f"{METADATA_ROOT_DIR_NAME}/{SEARCH_INDEX_DIR_NAME}"
+        )
+        if not await self.drive.exists(search_index_path):
+            await self.drive.create_directory(search_index_path)
+
+    async def create_page(
+        self,
+        path: PrismPath | None = None,
+        title: str | None = None,
+        content: str | None = None,
+    ) -> Page:
+        """Create a new page with the given title and content"""
+        return await Page.create(self.drive, path, title, content)
+
+    def get_page(self, path: PrismPath) -> Page:
+        return Page(self.drive, path)
+
+    def get_folder(self, path: PrismPath | None = None) -> Folder:
         """Get a folder by path (relative to prism root)"""
-        if path is None:
-            path = "."
-        full_path = (self.root / Path(path)).resolve()
-        if not full_path.exists():
-            raise FileNotFoundError(f"Folder not found: {path}")
-        return Folder(self, full_path)
+        return Folder(self, path or PrismPath())
 
-    def refresh_page(self, path: PathLike):
+    async def create_folder(self, path: PrismPath) -> Folder:
+        """Create a new folder with the given path"""
+        return await Folder.create(self, path)
+
+    async def refresh_page(self, path: PrismPath):
         """Refresh a single page (validate, run generators, update indices)"""
         page = self.get_page(path)
-        page.refresh()
+        await page.refresh()
 
-    def refresh_folder(self, path: PathLike, recursive: bool = False):
+    async def refresh_folder(self, path: PrismPath, recursive: bool = False):
         """Refresh all pages in a folder"""
         folder = self.get_folder(path)
-        folder.refresh(recursive=recursive)
+        await folder.refresh(recursive=recursive)

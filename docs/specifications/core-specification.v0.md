@@ -1,8 +1,20 @@
-# Prism specification
+# Prism Core Specification v0
 
 <!-- prism:generate:breadcrumbs -->
-[Prism Documentation](README.md) > Prism specification
+[Prism](../README.md) / [Specifications](README.md) / Prism Core Specification v0
 <!-- /prism:generate:breadcrumbs -->
+
+<!-- prism:generate:toc -->
+- [Overview](#overview)
+  - [Benefits](#benefits)
+- [Library capabilities](#library-capabilities)
+- [Command line client](#command-line-client)
+  - [Editor features](#editor-features)
+- [Components](#components)
+  - [Refresh](#refresh)
+- [Implementation notes](#implementation-notes)
+  - [Source code layout](#source-code-layout)
+<!-- /prism:generate:toc -->
 
 ## Overview
 
@@ -223,6 +235,37 @@ title: Prism specification
 path: SPEC.md
 generator_types:
   - breadcrumbs
+  - X
+---
+-->
+
+<!-- prism:metadata
+---
+title: Prism specification
+path: specifications/core-specification.v0.md
+generator_types:
+  - breadcrumbs
+  - X
+---
+-->
+
+<!-- prism:metadata
+---
+title: Prism Core Specification v0
+path: specifications/core-specification.v0.md
+generator_types:
+  - breadcrumbs
+  - X
+---
+-->
+
+<!-- prism:metadata
+---
+title: Prism Core Specification v0
+path: specifications/core-specification.v0.md
+generator_types:
+  - breadcrumbs
+  - toc
   - X
 ---
 -->

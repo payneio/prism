@@ -1,35 +1,80 @@
-# Prism Documentation
+# Prism
+
+## Additional Documentation
+
+<!-- prism:generate:pages -->
+- [Architecture](architecture/README.md)
+- [Changelog](changelog.md)
+- [Collaboration](collaboration/README.md)
+- [Design](design/README.md)
+- [Documentation](documentation/README.md)
+- [Roadmap](roadmap/README.md)
+- [Specifications](specifications/README.md)
+<!-- /prism:generate:pages -->
+
+## Subprojects
+
+- [CLI](../src/prism/cli/README.md)
+- [Core library (Python)](../src/prism/README.md)
+
+## This page
 
 <!-- prism:generate:toc -->
-- [Prism](#prism)
+- [Additional Documentation](#additional-documentation)
+- [Subprojects](#subprojects)
+- [This page](#this-page)
+- [What is Prism?](#what-is-prism)
 - [Benefits](#benefits)
 - [Core Features](#core-features)
-- [Additional Documentation](#additional-documentation)
 <!-- /prism:generate:toc -->
 
-## Prism
+## What is Prism?
 
-Prism reimagines content management for the AI era by transforming static information into dynamic, adaptable knowledge. While tools like Notion and Obsidian offer rich features for organizing notes and documents, they largely remain passive repositories. They require manual effort to restructure or repurpose content for different contexts.
+Prism reimagines content management for the AI era by transforming static
+information into dynamic, adaptable knowledge. While tools like Notion and
+Obsidian offer rich features for organizing notes and documents, they largely
+remain passive repositories. They require manual effort to restructure or
+repurpose content for different contexts.
 
-**The Heart of Prism** lies in its ability to make content inherently flexible and interactive:
+**The Heart of Prism** lies in its ability to make content inherently flexible
+and interactive:
 
-- **Dynamic Content Transformation**: Prism treats your content as a living graph, not just a collection of files. You can project, transform, and reshape information on-the-fly, tailoring it to specific needs without duplicating or manually reorganizing it.
+- **Dynamic Content Transformation**: Prism treats your content as a living
+  graph, not just a collection of files. You can project, transform, and reshape
+  information on-the-fly, tailoring it to specific needs without duplicating or
+  manually reorganizing it.
 
-- **Seamless AI Integration**: Designed with AI collaboration in mind, Prism allows AI assistants to navigate, summarize, and even help build your content structures. This means you can leverage AI to manage context, generate insights, and maintain your knowledge base effortlessly.
+- **Seamless AI Integration**: Designed with AI collaboration in mind, Prism
+  allows AI assistants to navigate, summarize, and even help build your content
+  structures. This means you can leverage AI to manage context, generate
+  insights, and maintain your knowledge base effortlessly.
 
-- **Markdown Simplicity with Graph Power**: By building on Markdown, Prism keeps things simple and accessible. Yet, beneath that simplicity is a powerful graph-based system that enables sophisticated organization and retrieval of information.
+- **Markdown Simplicity with Graph Power**: By building on Markdown, Prism keeps
+  things simple and accessible. Yet, beneath that simplicity is a powerful
+  graph-based system that enables sophisticated organization and retrieval of
+  information.
 
-- **Open, Flexible, and Collaborative**: Prism is protocol-first and git-friendly, promoting openness and interoperability. You're not locked into specific tools or platforms, allowing for broader collaboration and longevity of your content.
+- **Open, Flexible, and Collaborative**: Prism is protocol-first and
+  git-friendly, promoting openness and interoperability. You're not locked into
+  specific tools or platforms, allowing for broader collaboration and longevity
+  of your content.
 
 **Why This Matters**:
 
-Traditional systems and even newer applications focus on storing information, but they don't inherently support the dynamic needs of modern knowledge work, especially in collaboration with AI. Prism addresses this gap by:
+Traditional systems and even newer applications focus on storing information,
+but they don't inherently support the dynamic needs of modern knowledge work,
+especially in collaboration with AI. Prism addresses this gap by:
 
 - Eliminating the need for manual maintenance of complex content structures.
-- Enabling real-time content adaptation and projection for different contexts or audiences.
-- Harnessing AI to enhance and manage your content, turning a passive repository into an active knowledge partner.
+- Enabling real-time content adaptation and projection for different contexts or
+  audiences.
+- Harnessing AI to enhance and manage your content, turning a passive repository
+  into an active knowledge partner.
 
-In essence, Prism offers a paradigm shift from static documents to dynamic knowledge ecosystems, bridging the gap between human thought and AI capabilities. It's a powerful innovation because it doesn't just manage information—it transforms how we interact with knowledge itself.
+In essence, Prism offers a paradigm shift from static documents to dynamic
+knowledge ecosystems, bridging the gap between human thought and AI
+capabilities. It's a powerful innovation because it doesn't just manage
+information—it transforms how we interact with knowledge itself.
 
 ## Benefits
 
@@ -63,12 +108,16 @@ In essence, Prism offers a paradigm shift from static documents to dynamic knowl
   maintenance
 - **Command Line Interface**: Full control through a powerful CLI
 
-## Additional Documentation
-
-<!-- prism:generate:pages -->
-- [Prism specification](SPEC.md)
-- [Changelog](TODO.md)
-<!-- /prism:generate:pages -->
+<!-- prism:metadata
+---
+title: Prism Documentation
+path: README.md
+generator_types:
+  - pages
+  - toc
+  - pages
+---
+-->
 
 <!-- prism:metadata
 ---
@@ -77,5 +126,35 @@ path: README.md
 generator_types:
   - toc
   - pages
+---
+-->
+
+<!-- prism:metadata
+---
+title: Prism Documentation
+path: README.md
+generator_types:
+  - toc
+  - pages
+---
+-->
+
+<!-- prism:metadata
+---
+title: Prism
+path: README.md
+generator_types:
+  - pages
+  - toc
+---
+-->
+
+<!-- prism:metadata
+---
+title: Prism
+path: README.md
+generator_types:
+  - pages
+  - toc
 ---
 -->

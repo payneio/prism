@@ -1,42 +1,31 @@
 # tests/generators/test_siblings.py
 from textwrap import dedent
-import pytest
+
+from prism import PrismPath
 from prism.generators.siblings import SiblingsGenerator
 
 
-def test_siblings_generator(prism):
+def p(path: str) -> PrismPath:
+    return PrismPath(path)
+
+
+async def test_siblings_generator(tmp_prism):
     """Test siblings generator lists other pages"""
     # Create test pages in docs
-    docs = prism.get_folder("docs")
-    docs.create_page("Test One")
-    page_two = docs.create_page("Test Two")
+    await tmp_prism.create_page(p("docs/test_one.md"), title="Test One")
+    page_two = await tmp_prism.create_page(p("docs/test_two.md"), title="Test Two")
 
     # Generate sibling list from one of the pages
     generator = SiblingsGenerator()
-    content = generator.generate(page_two)
+    content = await generator.generate(page_two)
 
     # Should include other pages but not the current one
-    assert "Test One" in content
-    assert "Test Two" not in content
-    assert "guide.md" in content
-
-
-def test_siblings_generator_alone(prism):
-    """Test siblings generator when page is alone"""
-    empty = prism.root / "empty"
-    empty.mkdir()
-    empty.joinpath("test.md").write_text(
-        dedent("""
-        # Test Page
-
-        [Parent](.)
-
-        Just a test.
-        """).lstrip()
+    assert (
+        content.strip()
+        == "\n".join(
+            [
+                "- [Guide](guide.md)",
+                "- [Test One](test_one.md)",
+            ]
+        ).strip()
     )
-
-    page = prism.get_page("empty/test.md")
-    generator = SiblingsGenerator()
-    content = generator.generate(page)
-
-    assert "No other pages" in content

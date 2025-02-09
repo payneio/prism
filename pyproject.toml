@@ -4,17 +4,26 @@ version = "0.1.0"
 description = "A next-generation content management protocol with AI-enabled projection and transformation capabilities"
 authors = [{ name = "Paul Payne", email = "paul@payne.io" }]
 dependencies = [
-    "click>=8.1.0",    # CLI framework
-    "markdown>=3.5.0", # Markdown parsing
-    "pyyaml>=6.0.0",   # YAML metadata handling
+    "aiofiles>=24.1.0",
+    "aiopath>=0.7.7",
+    "asyncclick>=8.1.8", # CLI framework
+    "markdown>=3.5.0",   # Markdown parsing
+    "pyyaml>=6.0.0",     # YAML metadata handling
 ]
 requires-python = ">=3.12"
 
 [project.scripts]
 prism = "prism.cli.prism:cli"
 
-[project.optional-dependencies]
-dev = ["pytest>=7.4.0", "ruff>=0.1.9", "mypy>=1.7.0"]
+[dependency-groups]
+dev = [
+    "pytest >=8.1.1,<9",
+    "pytest>=7.4.0",
+    "ruff>=0.1.9",
+    "mypy>=1.7.0",
+    "pytest-asyncio>=0.25.3",
+    "click>=8.1.8",           # for click.testing, otherwise, we use asyncclick
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -26,3 +35,4 @@ build-backend = "pdm.backend"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+asyncio_mode = "auto"

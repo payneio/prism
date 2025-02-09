@@ -1,10 +1,9 @@
 # src/prism/cli/folder.py
 from pathlib import Path
 
-import click
+import asyncclick as click
 
-from ..prism import Prism
-from ..utils.paths import find_prism_root
+from prism import Disk, Prism, PrismNotFoundError
 
 
 @click.group()
@@ -14,22 +13,20 @@ def folder():
 
 
 @folder.command()
-@click.argument("path", type=click.Path())
-def add(path: str):
+@click.argument("path", type=click.Path(path_type=Path))
+async def add(path: Path):
     """Add a new folder at the specified path"""
     try:
-        prism = Prism(find_prism_root())
-        folder_path = Path(path)
+        drive = Disk.find_prism_drive()
+    except PrismNotFoundError:
+        raise click.ClickException("No prism found in current directory")
 
-        # Get or create parent folders
-        parent = folder_path.parent
-        if parent != Path("."):
-            parent_folder = prism.get_folder(parent)
-        else:
-            parent_folder = prism.get_folder(".")
-
-        # Create the folder
-        parent_folder.create_subfolder(folder_path.name)
+    try:
+        absolute_path = Path(path).resolve()
+        the_prism_path = absolute_path.relative_to(drive.root)
+        prism = Prism(drive)
+        prism_path = await prism.drive.prism_path(the_prism_path)
+        await prism.create_folder(prism_path)
         click.echo("Created folder.")
     except Exception as e:
         raise click.ClickException(str(e))
@@ -38,11 +35,17 @@ def add(path: str):
 @folder.command()
 @click.argument("path", type=click.Path())
 @click.option("--recursive", "-r", is_flag=True, help="Recursively refresh subfolders")
-def refresh(path: str, recursive: bool):
+async def refresh(path: str, recursive: bool):
     """Refresh all pages in a folder"""
     try:
-        prism = Prism(find_prism_root())
-        prism.refresh_folder(path, recursive=recursive)
+        drive = Disk.find_prism_drive()
+    except PrismNotFoundError:
+        raise click.ClickException("No prism found in current directory")
+
+    try:
+        prism = Prism(drive)
+        prism_path = await prism.drive.prism_path(path)
+        await prism.refresh_folder(prism_path, recursive=recursive)
         if recursive:
             click.echo("Refreshed folder and subfolders.")
         else:
