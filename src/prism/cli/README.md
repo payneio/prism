@@ -1,16 +1,8 @@
-# Packaging
+# Command Line Interface (CLI)
 
 <!-- prism:generate:breadcrumbs -->
-[Prism Documentation](README.md) > Packaging
+[Prism Documentation](../../../docs/README.md) / CLI
 <!-- /prism:generate:breadcrumbs -->
-
-## Pages
-
-<!-- prism:generate:pages -->
-- [Packaging](packaging.md)
-- [Prism specification](SPEC.md)
-- [Changelog](TODO.md)
-<!-- /prism:generate:pages -->
 
 ## Steps for creating and installing the cli as a pip package
 

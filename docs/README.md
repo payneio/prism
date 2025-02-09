@@ -1,13 +1,34 @@
-# Prism Documentation
+# Prism
+
+## Additional Documentation
+
+<!-- prism:generate:pages -->
+- [Architecture](architecture/README.md)
+- [Changelog](changelog.md)
+- [Collaboration](collaboration/README.md)
+- [Design](design/README.md)
+- [Documentation](documentation/README.md)
+- [Roadmap](roadmap/README.md)
+- [Specifications](specifications/README.md)
+<!-- /prism:generate:pages -->
+
+## Subprojects
+
+- [CLI](../src/prism/cli/README.md)
+- [Core library (Python)](../src/prism/README.md)
+
+## This page
 
 <!-- prism:generate:toc -->
-- [Prism](#prism)
+- [Additional Documentation](#additional-documentation)
+- [Subprojects](#subprojects)
+- [This page](#this-page)
+- [What is Prism?](#what-is-prism)
 - [Benefits](#benefits)
 - [Core Features](#core-features)
-- [Additional Documentation](#additional-documentation)
 <!-- /prism:generate:toc -->
 
-## Prism
+## What is Prism?
 
 Prism reimagines content management for the AI era by transforming static
 information into dynamic, adaptable knowledge. While tools like Notion and
@@ -87,14 +108,6 @@ information—it transforms how we interact with knowledge itself.
   maintenance
 - **Command Line Interface**: Full control through a powerful CLI
 
-## Additional Documentation
-
-<!-- prism:generate:pages -->
-- [Packaging](packaging.md)
-- [Prism specification](SPEC.md)
-- [Changelog](TODO.md)
-<!-- /prism:generate:pages -->
-
 <!-- prism:metadata
 ---
 title: Prism Documentation
@@ -103,5 +116,45 @@ generator_types:
   - pages
   - toc
   - pages
+---
+-->
+
+<!-- prism:metadata
+---
+title: Prism Documentation
+path: README.md
+generator_types:
+  - toc
+  - pages
+---
+-->
+
+<!-- prism:metadata
+---
+title: Prism Documentation
+path: README.md
+generator_types:
+  - toc
+  - pages
+---
+-->
+
+<!-- prism:metadata
+---
+title: Prism
+path: README.md
+generator_types:
+  - pages
+  - toc
+---
+-->
+
+<!-- prism:metadata
+---
+title: Prism
+path: README.md
+generator_types:
+  - pages
+  - toc
 ---
 -->

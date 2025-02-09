@@ -7,6 +7,8 @@ from .base import Generator
 if TYPE_CHECKING:
     from ..page import Page
 
+INVALID_ANCHOR_CHARS = re.compile(r"[^a-z0-9\-]")
+
 
 class TocGenerator(Generator):
     """Generates a table of contents from page headers"""
@@ -27,7 +29,8 @@ class TocGenerator(Generator):
         # Generate TOC
         toc = []
         for level, title in headers:
-            indent = "  " * (level - 2)  # Level 2 headers start at base indent
-            toc.append(f"{indent}- [{title}](#{title.lower().replace(' ', '-')})")
+            indent = "  " * (level - 2)
+            anchor = INVALID_ANCHOR_CHARS.sub("", title.lower().replace(" ", "-"))
+            toc.append(f"{indent}- [{title}](#{anchor})")
 
         return "\n".join(toc)

@@ -44,7 +44,7 @@ class PagesGenerator(Generator):
         for subpage in pages:
             try:
                 title = await subpage.title
-                rel_path = PrismPath(subpage.path)
+                rel_path = PrismPath(subpage.path.relative_to(current_dir))
                 pages_with_titles.append((title, rel_path))
             except Exception as e:
                 logger.warning(f"Failed to get title for {subpage.path}: {e}")

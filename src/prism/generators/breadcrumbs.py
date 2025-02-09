@@ -22,7 +22,8 @@ class BreadcrumbsGenerator(Generator):
         breadcrumbs: list[tuple[str, PrismPath | None]] = []
 
         # Add current page without link
-        breadcrumbs.append((await page.title, None))
+        if not page.path.name == "README.md":
+            breadcrumbs.append((await page.title, None))
 
         # Build up parent links by traversing up the tree
         current_dir = page.path.parent
@@ -34,7 +35,9 @@ class BreadcrumbsGenerator(Generator):
             if await page.drive.exists(readme_path):
                 readme = Page(page.drive, readme_path)
                 # For immediate parent, use ./README.md
-                if current_dir == page.path.parent:
+                if page.path == readme_path:
+                    link_path = None
+                elif current_dir == page.path.parent:
                     link_path = PrismPath("./README.md")
                 else:
                     # For other ancestors, use the accumulated relative path
